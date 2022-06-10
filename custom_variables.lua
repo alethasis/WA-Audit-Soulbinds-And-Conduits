@@ -1,0 +1,3 @@
+{
+  auditFailed = "bool"
+}

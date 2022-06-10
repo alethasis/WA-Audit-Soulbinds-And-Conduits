@@ -1,0 +1,3 @@
+Warn if you are currently using any conduits that don't belong to your current spec.
+
+Configure soulbind settings for each class under "Custom Options" tab.
