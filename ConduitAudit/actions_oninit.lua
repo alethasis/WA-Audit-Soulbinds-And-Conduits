@@ -1,38 +1,11 @@
 -- CONSTANTS
-aura_env.SOULBIND_MAP = {
-    [1] = {[1] = 7, [2] = 13, [3] = 18},
-    [2] = {[1] = 8, [2] = 9, [3] = 3},
-    [3] = {[1] = 1, [2] = 2, [3] = 6},
-    [4] = {[1] = 4, [2] = 5, [3] = 10}
-}
-
 aura_env.CONDUIT_TYPE_MAP = {
     [0] = "FINESSE",
     [1] = "POTENCY",
     [2] = "ENDURANCE"
 }
 
-aura_env.EMPTY_COVENANT_SELECTION = 4
-
-aura_env.SLOT_NAMES = {
-    "HeadSlot", "NeckSlot", "ShoulderSlot", "BackSlot", "ChestSlot",
-    "ShirtSlot", "TabardSlot", "WristSlot", "HandsSlot", "WaistSlot",
-    "LegsSlot", "FeetSlot", "Finger0Slot", "Finger1Slot", "Trinket0Slot",
-    "Trinket1Slot", "MainHandSlot", "SecondaryHandSlot", "AmmoSlot"
-}
-
 -- UTIL
-aura_env.getSoulbindState = function(payload)
-    return {
-        show = true,
-        changed = true,
-        displayId = payload.displayId,
-        index = payload.index,
-        soulbindName = payload.soulbindName,
-        tooltip = payload.soulbindName
-    }
-end
-
 aura_env.getConduitState = function(payload)
     return {
         show = true,
@@ -43,12 +16,6 @@ aura_env.getConduitState = function(payload)
         index = payload.index,
         link = payload.link
     }
-end
-
-aura_env.findIdInLink = function(id, itemLink)
-    local findID = ":" .. tostring(id:trim())
-    return itemLink:find(findID .. ":", 1, true) or
-               itemLink:find(findID .. "|", 1, true)
 end
 
 -- TODO: Use WA Dynamic Group display function instead of this
@@ -93,84 +60,6 @@ function aura_env.orderedPairs(t)
 end
 
 -- MODULE
-aura_env.checkLegendary = function(allstates, index)
-    local soulbindAuditPassed = true
-    local currentSpec = GetSpecialization()
-
-    local legendaryViolations = {}
-
-    for slotNumber = 1, #aura_env.SLOT_NAMES do
-        local slotId = GetInventorySlotInfo(aura_env.SLOT_NAMES[slotNumber])
-        local itemLink = GetInventoryItemLink("player", slotId)
-
-        if (itemLink) then
-            local itemName, _, itemQuality, _, _, _, _, _, _, itemTexture =
-                GetItemInfo(itemLink)
-
-            if (itemQuality == 5) then
-                print("itemLink: ", itemLink)
-
-                -- legendaries[itemName] = {
-                --     name = itemName,
-                --     icon = itemTexture,
-                --     custom = itemName,
-                --     link = itemLink
-                -- }
-            end
-        end
-    end
-
-    -- index = index + 1
-
-    return allstates, index, soulbindAuditPassed
-end
-
-aura_env.checkSoulbind = function(allstates, index)
-    local covenantID = C_Covenants.GetActiveCovenantID()
-
-    if (covenantID) then
-        local currentSpec = GetSpecialization()
-        local currentSoulbindID = C_Soulbinds.GetActiveSoulbindID()
-
-        if (currentSoulbindID) then
-            local selectedSoulbind =
-                aura_env.config[tostring(covenantID)][tostring(currentSpec)]
-
-            if (selectedSoulbind ~= aura_env.EMPTY_COVENANT_SELECTION) then
-                local configSoulbindID =
-                    aura_env.SOULBIND_MAP[covenantID][selectedSoulbind]
-
-                local key = "SOULBIND_PORTRAIT"
-
-                if (configSoulbindID ~= nil and configSoulbindID ~=
-                    currentSoulbindID) then
-
-                    local soulbindData =
-                        C_Soulbinds.GetSoulbindData(currentSoulbindID)
-
-                    local soulbindDisplayID =
-                        soulbindData.modelSceneData.creatureDisplayInfoID
-
-                    index = index + 1
-
-                    local payload = {
-                        displayId = soulbindDisplayID,
-                        index = index,
-                        link = link,
-                        soulbindName = soulbindData.name
-                    }
-
-                    allstates[key] = aura_env.getSoulbindState(payload)
-                end
-
-                return allstates, index
-            end
-        end
-    end
-
-    return allstates, index
-end
-
 aura_env.checkConduits = function(allstates, index)
     local covenantID = C_Covenants.GetActiveCovenantID()
 
